@@ -11,6 +11,7 @@ except:
     import Tkconstants
     from constants import *
     import import_to_mongo
+    import widgets
 
 #CONSTANTS FOR GLOBAL USE
 ROOT = None
@@ -54,7 +55,7 @@ class Application:
         self.lb_filename = Label(self.fr_import,text="Selected File",background=BACKGROUND)
         self.lb_filename.grid(row=0,column =1,sticky=(W),padx=10,pady=10)
 
-        self.btn_import = Button(self.fr_import,text="Import to Mongo",command = self.__loadcsv)
+        self.btn_import = Button(self.fr_import,text="Database Settings",command = self.__loadcsv)
         self.btn_import.grid(row=1,column=0,sticky=(W),padx=10)
 
         self.lb_status = Label(self.fr_import,text="Status",background=BACKGROUND)
@@ -99,10 +100,16 @@ class Application:
 
     def __loadcsv(self):
         """Move the data to the monogdb"""
-        try:
-            import_to_mongo.load_csv(self.directory,"locals","sagar",self.text)
-        except Exception as err:
-            print err
+
+        importWindow = widgets.importWidget(self.root)
+
+
+
+
+        # try:
+        #     import_to_mongo.load_csv(self.directory,"locals","sagar",self.text)
+        # except Exception as err:
+        #     print err
 
 
 if __name__ == '__main__':
