@@ -89,7 +89,7 @@ class Application:
 
     def __readcsv(self):
         """Open a csv and read in the contents"""
-        print "open csv file!"
+        #print "open csv file!"
         self.directory=tkFileDialog.askopenfilename(filetypes=[("CSV","*.csv")])
 
         self.lb_filename.config(text= self.directory.split("/")[-1])
@@ -100,16 +100,10 @@ class Application:
 
     def __loadcsv(self):
         """Move the data to the monogdb"""
-
-        importWindow = widgets.importWidget(self.root)
-
-
-
-
-        # try:
-        #     import_to_mongo.load_csv(self.directory,"locals","sagar",self.text)
-        # except Exception as err:
-        #     print err
+        try:
+            importWindow = widgets.importWidget(self.root,self.text,self.directory)
+        except:
+            writeCalculations(self.text,"Please select file first",True,NB)
 
 
 if __name__ == '__main__':
