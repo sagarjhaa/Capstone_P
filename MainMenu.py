@@ -80,12 +80,20 @@ class Application:
         # self.nb_main.add(self.f2,text="Canvas")
         self.nb_main.add(f1,text="Calculation")
 
-        self.text = Text(f1,background ="#ececec")
+        self.text = Text(f1,background ="White")
         # self.canvas = Canvas(self.f2)
         # self.canvas.configure(background="black")
 
-        self.text.pack(expand=1,fill=BOTH,)
-        # self.canvas.pack(expand=1,fill=BOTH)
+        self.text.pack(expand=1,fill=BOTH)
+
+        self.scale = Scrollbar(self.text,command=self.yview)
+        self.scale.pack(side="right",fill="y")
+
+        self.text.configure(yscrollcommand=self.scale.set)
+
+    def yview(self,*args):
+        self.text.yview(*args)
+
 
     def __readcsv(self):
         """Open a csv and read in the contents"""

@@ -12,6 +12,7 @@ class importWidget():
         self.directory = directory
         self.var_database = None
         self.var_collection = None
+        self.record_count = 1
 
         #Creating top level widget
         top=self.top=Toplevel(root,background= BACKGROUND)
@@ -112,54 +113,55 @@ class importWidget():
 
         return new_collections
 
-    def add_record_to_mongo(self,collection, record,text):
+    def add_record_to_mongo(self,collection, record):
 
         mongo_coll = collection
 
         # Now let's insert
-        writeCalculations(text,record,False,None)
-        mongo_coll.insert(record)
+        try:
+            record1 = record
+            record1["id"] = self.record_count
+            try:
+                mongo_coll.insert(record)
+                writeCalculations(self.text,record1,False,None)
+                self.record_count =self.record_count + 1
+            except:
+                print record
+        except Exception as e:
+            print e
 
-    def run_csv_file(self,csvfile, database,collection,text):
+    def run_csv_file(self,csvfile, database,collection):
         data = 'Gonna load the CSV file "{csvfile}" into mongodb "{mongo}"\n'.format(csvfile=csvfile, mongo=str(database)+":"+str(collection))
         writeCalculations(self.text,data,False,None)
         with open(csvfile,'rb') as incsv:
             parsed = csv.DictReader(incsv, delimiter=',', quotechar='"')
             for record in parsed:
-                self.add_record_to_mongo(collection, record,text)
-
+                self.add_record_to_mongo(collection,record)
 
     def load_data_into_mongo(self):
-
         db = self.txt_database.get()
         coll = self.txt_collection.get()
-
         db1 = self.var_database.get()
         coll1 = self.var_collection.get()
 
-
         if db <> "" and coll <> "":
-
             conn = MongoClient("localhost",27017)
             text = "Moving Data into \nDatabase: %s \nCollection: %s" % (str(db),str(coll))
             self.status.configure(text=text)
             db = conn[db]
             coll = db[coll]
-            #self.run_csv_file(self.directory,db,coll,self.text)
+            self.run_csv_file(self.directory,db,coll)
 
         elif db1 <> "" and coll1 <> "":
-
             conn = MongoClient("localhost",27017)
             text = " Moving Data into \nDatabase: %s \nCollection: %s" % (str(db1),str(coll1))
             self.status.configure(text=text)
             db = conn[db1]
             coll = db[coll1]
-            #self.run_csv_file(self.directory,db,coll,self.text)
+            self.run_csv_file(self.directory,db,coll)
 
         else:
             writeCalculations(self.text,"Some Error Occurred",False,None)
-
-
 
     def quit(self):
         self.top.destroy()
