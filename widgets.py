@@ -4,6 +4,7 @@ from Tkinter import *
 from constants import *
 from pymongo import MongoClient
 import csv
+import subprocess as sp
 
 class importWidget():
     def __init__(self,root,text,directory):
@@ -13,6 +14,10 @@ class importWidget():
         self.var_database = None
         self.var_collection = None
         self.record_count = 1
+        self.proc = None
+
+        #start mongo server
+        self.open_mongo_server()
 
         #Creating top level widget
         top=self.top=Toplevel(root,background= BACKGROUND)
@@ -95,6 +100,12 @@ class importWidget():
         self.top.grid_rowconfigure(0, weight=1)
         self.top.grid_rowconfigure(1, weight=3)
 
+    def open_mongo_server(self):
+        self.proc = sp.Popen("mongod")
+
+    def close_mongo_server(self):
+        self.proc.kill()
+
     def read_database_name(self):
         conn = MongoClient("localhost",27017)
         return conn.database_names()
@@ -164,5 +175,6 @@ class importWidget():
             writeCalculations(self.text,"Some Error Occurred",False,None)
 
     def quit(self):
+        self.close_mongo_server()
         self.top.destroy()
 

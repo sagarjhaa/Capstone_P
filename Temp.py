@@ -1,40 +1,53 @@
-from Tkinter import *
+#Code For Neo4j
 
-root = Tk()
-t1 = Text(root, height=20, width=40)
-t1.pack(side='left')
-t2 = Text(root, height=20, width=40)
-t2.pack(side='left')
+import pymongo
+from neo4jrestclient.client import GraphDatabase
+db = GraphDatabase("http://localhost:7474", username="neo4j", password="sagar123")
 
-# add some text to scroll
-f = open(__file__, 'r')
-text = f.read()
-f.close()
-t1.insert('end', text)
-t2.insert('end', text)
+conn = pymongo.MongoClient("localhost:27017")
+db1 = conn['Wild']
+coll = db1['RockyFire']
+docs = coll.find({"TEXT":{"$regex":"^RT"}})#.limit(3)
+i = 1
+user = db.labels.create("User")
+#retweet = db.labels.create("Retweet")
+for doc in docs:
+    try:
 
-def yview(*args):
+        actual_user = doc['USERNAME']
+        text = doc['TEXT']
+        text_list = text.split(":")
+        retweet_User = text_list[0]
+        retweet_User_id = retweet_User[4:]
 
-    t1.yview(*args)
-    t2.yview(*args)
 
-sb = Scrollbar(root, command=yview)
-sb.pack(side='right', fill='y')
 
-t1.configure(yscrollcommand=sb.set)
-t2.configure(yscrollcommand=sb.set)
+        u1 = db.nodes.create(name=actual_user)
+        user.add(u1)
+        u2 = db.nodes.create(name=retweet_User_id)
+        user.add(u2)
+        u1.relationships.create("retweets",u2)
 
-# slave = {t1: t2, t2: t1}
-# for t in (t1, t2):
-#     def down(event):
-#         print "Down"
-#         root.tk.call('tk::TextSetCursor', slave[event.widget],
-#                 root.tk.call('tk::TextUpDownLine', event.widget, 1))
-#     t.bind('<Down>', down, add=True)
-#     def up(event):
-#         print "Up"
-#         root.tk.call('tk::TextSetCursor', slave[event.widget],
-#                 root.tk.call('tk::TextUpDownLine', event.widget, -1))
-#     t.bind('<Up>', up, add=True)
 
-root.mainloop()
+        print i,doc['USERNAME']," Retweets ",retweet_User_id#doc['TEXT'].split(":")[0][4:]
+        i += 1
+    except:
+        print "-"*30
+        #i+=1
+
+# from neo4jrestclient.client import GraphDatabase
+#
+# db = GraphDatabase("http://localhost:7474", username="neo4j", password="sagar123")
+#
+# # Create some nodes with labels
+# user = db.labels.create("User")
+# u1 = db.nodes.create(name="Marco")
+# user.add(u1)
+# u2 = db.nodes.create(name="Daniela")
+# user.add(u2)
+#
+# beer = db.labels.create("Beer")
+# b1 = db.nodes.create(name="Punk IPA")
+# b2 = db.nodes.create(name="Hoegaarden Rosee")
+# # You can associate a label with many nodes in one go
+# beer.add(b1, b2)

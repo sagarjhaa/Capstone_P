@@ -18,7 +18,7 @@ def writeCalculations(widget,text,error,NB=None):
 
         widget.tag_configure('error',foreground='red')
         widget.insert(END,text,'error')
-        NB.select(1)
+        #NB.select(1)
     else:
         if type(text)== dict:
             widget.insert(END,"{")
