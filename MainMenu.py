@@ -12,6 +12,9 @@ except:
     from constants import *
     import import_to_mongo
     import widgets
+    import subprocess as sp
+    import graphics as gp
+    import nltk
 
 #CONSTANTS FOR GLOBAL USE
 ROOT = None
@@ -91,9 +94,22 @@ class Application:
 
         self.text.configure(yscrollcommand=self.scale.set)
 
+        self.fr_neo4j = LabelFrame(self.fr_first,text="Graph Database",background=BACKGROUND)
+        self.fr_neo4j.grid(row=1,column=0,sticky=(W,N,E),ipadx=50,pady=20)
+
+        self.btn_start_neo = Button (self.fr_neo4j, text = "Start Server",command=self.start_neo4j)
+        self.btn_start_neo.grid(row=0,column=0,sticky=(W,E),padx=10,ipadx=10,pady=10)
+
+        self.btn_stop_neo = Button (self.fr_neo4j, text = "Stop Server",command=self.stop_neo4j)
+        self.btn_stop_neo.grid(row=0,column=1,sticky=(W,E),padx=10,ipadx=10,pady=10)
+
+        self.btn_gen_graph = Button (self.fr_neo4j, text = "Graph Settings",command=self.gen_graph)
+        self.btn_gen_graph.grid(row=2,column=0,sticky=(W,E),padx=10,ipadx=10,pady=10)
+
+
+
     def yview(self,*args):
         self.text.yview(*args)
-
 
     def __readcsv(self):
         """Open a csv and read in the contents"""
@@ -113,6 +129,71 @@ class Application:
         except:
             writeCalculations(self.text,"Please select file first",True,NB)
 
+    def start_neo4j(self):
+        self.mong = sp.Popen("mongod")
+        self.serve = sp.Popen("C:\\Users\\snigd\\Downloads\\neo4j-enterprise-2.3.0\\bin\\Neo4j.bat")
+
+    def stop_neo4j(self):
+        try:
+            self.mong.kill()
+            self.serve.kill()
+        except:
+            writeCalculations(self.text,"Server is off",False,None)
+
+    def gen_graph(self):
+        import pymongo
+        #from neo4jrestclient.client import GraphDatabase
+        #db = GraphDatabase("http://localhost:7474", username="neo4j", password="sagar123")
+
+        conn = pymongo.MongoClient("localhost:27017")
+        db1 = conn['Elections']
+        coll = db1['results']
+        docs = coll.find()#({"text":{"$regex":"^RT"}})#.limit(1000)
+        i = 1
+        #user = db.labels.create("User")
+        mylist = []
+        for doc in docs:
+            mylist.append(doc['text'])
+
+        print len(mylist)
+        self.datalist= mylist
+
+        self.data_list = []
+        temp = []
+        for i in range(len(self.datalist)):
+            temp.append(self.datalist[i])
+            self.data_list.append(temp)
+            temp = []
+
+        tw=[]
+        itemp  = len(self.data_list)
+        for i in range(itemp):
+            try:
+                temp_list = ",".join(self.data_list[i])
+                tw.append(temp_list)
+            except Exception as e:
+                print self.data_list[i]
+
+        wlist = []
+        for item in tw:
+            words = item.split(" ")
+            for word in words:
+                wlist.append(word)
+
+        text = nltk.Text(wlist)
+
+        # self.inputlist = ["Donald","Hillary"]
+        # text.dispersion_plot(self.inputlist)
+
+        fdist1 = nltk.FreqDist(text)
+        print fdist1.most_common(50)
+        # vocab1 = fdist1.keys()
+        #
+        # iNum = 50
+        # if len(vocab1) < iNum:
+        #     iNum = len(vocab1)
+        #
+        # fdist1.plot(5,cumulative=True)
 
 if __name__ == '__main__':
     Application()

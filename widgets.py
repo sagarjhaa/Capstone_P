@@ -127,7 +127,6 @@ class importWidget():
     def add_record_to_mongo(self,collection, record):
 
         mongo_coll = collection
-
         # Now let's insert
         try:
             record1 = record
@@ -137,7 +136,7 @@ class importWidget():
                 writeCalculations(self.text,record1,False,None)
                 self.record_count =self.record_count + 1
             except:
-                print record
+                print record['user_id']
         except Exception as e:
             print e
 
@@ -170,7 +169,6 @@ class importWidget():
             db = conn[db1]
             coll = db[coll1]
             self.run_csv_file(self.directory,db,coll)
-
         else:
             writeCalculations(self.text,"Some Error Occurred",False,None)
 
